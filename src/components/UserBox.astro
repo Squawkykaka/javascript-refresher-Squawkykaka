@@ -48,6 +48,7 @@
         where,
     } from "firebase/firestore";
     import { db } from "../scripts/main";
+import { undefined } from "astro:schema";
 
     // to firestore and when you click it queries last 10 messages from said user
     async function defaultUserList() {
@@ -76,7 +77,9 @@
         let newHtml = "";
         for (let i = 0; i < input.length; i++) {
             const data = input[i].data();
-            newHtml += `<button>${data.email}</button>`;
+            if (data.email) {
+                newHtml += `<button>${data.email}</button>`;
+            }
         }
 
         return newHtml;
