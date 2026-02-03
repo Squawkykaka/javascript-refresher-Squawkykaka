@@ -15,66 +15,104 @@
   <body>
     <h1 id="welcomeMessage">You haven't connected the JavaScript yet</h1>
     <form id="headingForm">
-      <button id="headingButton" type="submit">Change the HEADING!</button>
+      <button id="headingButton" type="submit" disabled>Change the HEADING!</button>
 
       <label for="newHeadingName">New Heading Name:</label>
       <input type="text" name="newHeadingName" />
     </form>
-  </body>
 
-  <p>
-    Your tasks:
-    <h2>JavaScript</h2>
-    <ul>
-      <li>
-        Connect the JavaScript file - this page will tell you when it is done ✅
-      </li>
-      <li>
-        Add a button - Make it change the heading "You pressed the button!" ✅
-      </li>
-      <li>Add a text input</li>
-      <li>The button puts the text in the heading</li>
-      <li>
-        Get rid of the alert - the button updates the heading of this page ✅
-      </li>
-    </ul>
-    <h4>Firebase basics</h4>
+    <div>
+      <div>
+        <p id="userName">Anonymous</p>
+        <form id="signupForm">
+          <button>Sign Up</button>
+          <input type="email" name="email" />
+          <input type="password" name="password" />
+          <p></p>
+        </form>
+        <form id="loginForm">
+          <button>Login</button>
+          <input type="email" name="email" />
+          <input type="password" name="password" />
+          <p></p>
+        </form>
+      </div>
 
-    <ul>
-      <li>Create a new Firebase or re-use yours from last year ✅</li>
-      <li>Remember how to connect up the 'authorised domains'</li>
-      <li>Add a button - Make it save the text to Firebase ✅</li>
-      <li>
-        Add another button - Make it read the message from Firebase and write it
-        to the heading of this page
-      </li>
-    </ul>
-    <h4>Firebase logins</h4>
-    <ul>
-      <li>Use Google Authentication</li>
-      <li>
-        Change what the first button does. Now it saves the text and the user
-        who entered it
-      </li>
-      <li>
-        Change what the second button does. Now it displays all the messages and
-        who added them
-      </li>
-    </ul>
-    <h4>Extension</h4>
-    <ul>
-      <li>Firebase now stores a list of messages saved by each user</li>
-      <li>There is a button that only displays your messages</li>
-      <li>You can filter to only display messages from a specific user</li>
-    </ul>
+      <ul id="changeList" class="changeList">
+        <li id="item1"></li>
+        <li id="item2"></li>
+        <li id="item3"></li>
+        <li id="item4"></li>
+        <li id="item5"></li>
+      </ul>
+    </div>
     <p>
-      You learned all this last year. You just need to remember how!<br />
-      You can Google it, ask a friend, copy from last year's work, even look at
-      <a
-        href="https://sites.google.com/hvhs.school.nz/technology/COMP/12COMP/12-databases/br-firebase-skills"
-        >last year's notes</a
-      >, works for you.<br />
-      By the end of the week you will have Firebase going.
+      Your tasks:
+      <h2>JavaScript</h2>
+      <ul>
+        <li>
+          Connect the JavaScript file - this page will tell you when it is done
+          ✅
+        </li>
+        <li>
+          Add a button - Make it change the heading "You pressed the button!" ✅
+        </li>
+        <li>Add a text input</li>
+        <li>The button puts the text in the heading</li>
+        <li>
+          Get rid of the alert - the button updates the heading of this page ✅
+        </li>
+      </ul>
+      <h4>Firebase basics</h4>
+
+      <ul>
+        <li>Create a new Firebase or re-use yours from last year ✅</li>
+        <li>Remember how to connect up the 'authorised domains'</li>
+        <li>Add a button - Make it save the text to Firebase ✅</li>
+        <li>
+          Add another button - Make it read the message from Firebase and write
+          it to the heading of this page ✅
+        </li>
+      </ul>
+      <h4>Firebase logins</h4>
+      <ul>
+        <li>Use Google Authentication</li>
+        <li>
+          Change what the first button does. Now it saves the text and the user
+          who entered it
+        </li>
+        <li>
+          Change what the second button does. Now it displays all the messages
+          and who added them
+        </li>
+      </ul>
+      <h4>Extension</h4>
+      <ul>
+        <li>Firebase now stores a list of messages saved by each user</li>
+        <li>There is a button that only displays your messages</li>
+        <li>You can filter to only display messages from a specific user</li>
+      </ul>
+      <p>
+        You learned all this last year. You just need to remember how!<br />
+        You can Google it, ask a friend, copy from last year's work, even look at
+        <a
+          href="https://sites.google.com/hvhs.school.nz/technology/COMP/12COMP/12-databases/br-firebase-skills"
+          >last year's notes</a
+        >, works for you.<br />
+        By the end of the week you will have Firebase going.
+      </p>
     </p>
-  </p>
+  </body>
 </html>
+
+<style>
+  .changeList {
+    background: green;
+    width: 25%;
+  }
+
+  .changeList li {
+    background-color: red;
+    margin-top: 2px;
+  }
+</style>
