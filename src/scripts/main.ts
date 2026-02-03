@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { EmailAuthProvider, getAuth, linkWithCredential, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword } from "firebase/auth";
-import { addDoc, collection, doc, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, increment, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
 
 const firebaseConfig = {
 
@@ -29,6 +29,70 @@ signInAnonymously(auth).catch(error => {
 
 let userName = "Anonymous";
 
+// fetch 10 users, for the filter list
+// a search bar is also there, that allows you to filter users which then get queried 
+// to firestore and when you click it queries last 10 messages from said user
+async function defaultUserList() {
+    const userQuery = query(collection(db, "users"), orderBy("messagesSent", "desc"), limit(10));
+    let snapshot = await getDocs(userQuery);
+
+    let newHtml = formatFirebaseEmails(snapshot.docs)
+
+    document.getElementById("usersList")!.innerHTML = newHtml;
+
+    document.querySelectorAll("#usersList > button").forEach(element => {
+        element.addEventListener("click", e => {
+            let user = e.target.textContent;
+
+            filterMessageBox(user)
+        })
+    })
+}
+defaultUserList()
+
+function formatFirebaseEmails(input: any): string {
+    let newHtml = "";
+    for (let i = 0; i < input.length; i++) {
+        const data = input[i].data();
+        newHtml += `<button>${data.email}</button>`;
+    }
+
+    return newHtml
+}
+
+async function filterUsers(keyword: string) {
+    const userQuery = query(
+        collection(db, "users"), 
+        // orderBy("messagesSent", "desc"), 
+        limit(10),
+
+        // a trick to search inside strings https://stackoverflow.com/questions/46568142/google-firestore-query-on-substring-of-a-property-value-text-search
+        where("email", '>=', keyword), 
+        where("email", '<=', keyword + '\uf8ff'));
+
+    const snapshot = await getDocs(userQuery);
+    let newHtml = formatFirebaseEmails(snapshot.docs);
+    document.getElementById("usersList")!.innerHTML = newHtml;
+
+
+        document.querySelectorAll("#usersList > button").forEach(element => {
+        element.addEventListener("click", e => {
+            let user = e.target.textContent;
+
+            filterMessageBox(user)
+        })
+    })
+}
+
+// filtering user list
+let userFilterForm: HTMLFormElement = document.getElementById("userFilterForm")!;
+userFilterForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const data = new FormData(userFilterForm);
+    const userSearch = data.get("user");
+    filterUsers(userSearch);
+});
+
 // changing header with a form
 let headerForm: HTMLFormElement = document.getElementById("headingForm")!;
 headerForm.addEventListener("submit", event => {
@@ -42,17 +106,21 @@ headerForm.addEventListener("submit", event => {
 async function updateMessage(text: string) {
     // this function is always called in a context where we know it is valid
     let user = auth.currentUser!;
-    await addDoc(collection(db, "header"), {
+    addDoc(collection(db, "header"), {
         title: text,
         createdAt: serverTimestamp(),
         userRef: doc(db, "users", user.uid),
         userName: user.email
     })
+    updateDoc(doc(db, "users", user.uid), {
+        // filtering by messages sent seems like a relatively decent sorting mechanism for default
+        messagesSent: increment(1)
+    })
 
 }
 
 // when a change to the database is detected, pulls it and applies it to the header and update list.
-const unsubscribe = onSnapshot(query(collection(db, "header"), orderBy("createdAt", "desc"), limit(5)), (snapshot) => {
+const unsubscribeHeader = onSnapshot(query(collection(db, "header"), orderBy("createdAt", "desc"), limit(5)), (snapshot) => {
     if (!snapshot.empty) {
         // apply to header
         const doc = snapshot.docs[0];
@@ -100,6 +168,7 @@ signupForm.addEventListener("submit", event => {
             setDoc(doc(db, "users", user.uid), {
                 displayName: user.displayName,
                 email: user.email,
+                messagesSent: 0,
             })
         }).catch((error) => {
             console.error("Error upgrading anonymous account", error);
@@ -145,3 +214,26 @@ onAuthStateChanged(auth, (user) => {
         // ...
     }
 });
+
+async function filterMessageBox(user: string) {
+    const userQuery = query(collection(db, "header"), orderBy("createdAt", "desc"), limit(10), where("userName", "==", user));
+    const snapshot = await getDocs(userQuery);
+
+    let newHtml = "";
+    snapshot.docs.forEach(element => {
+
+        let data: { title: string, createdAt: Timestamp, userName: string, /* userRef */ } = element.data();
+
+        let date: Date = data.createdAt.toDate();
+        let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+
+        newHtml +=
+            `<div>
+            <p>${data.title}</p>
+            <p>${formattedDate}</p>
+        </div>`
+    })
+
+    document.getElementById("userMessages")!.innerHTML = newHtml;
+    console.log(snapshot.docs)
+}
