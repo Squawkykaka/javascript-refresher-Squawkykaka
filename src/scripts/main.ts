@@ -23,7 +23,12 @@ let message = document.getElementById("welcomeMessage")!;
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-signInAnonymously(auth).catch(error => {
+signInAnonymously(auth).then(() => {
+    let user = auth.currentUser!;
+    setDoc(doc(db, "users", user.uid), {
+        messagesSent: 0,
+    })
+}).catch(error => {
     message.innerHTML = error
 })
 
@@ -62,12 +67,12 @@ function formatFirebaseEmails(input: any): string {
 
 async function filterUsers(keyword: string) {
     const userQuery = query(
-        collection(db, "users"), 
+        collection(db, "users"),
         // orderBy("messagesSent", "desc"), 
         limit(10),
 
         // a trick to search inside strings https://stackoverflow.com/questions/46568142/google-firestore-query-on-substring-of-a-property-value-text-search
-        where("email", '>=', keyword), 
+        where("email", '>=', keyword),
         where("email", '<=', keyword + '\uf8ff'));
 
     const snapshot = await getDocs(userQuery);
@@ -75,7 +80,7 @@ async function filterUsers(keyword: string) {
     document.getElementById("usersList")!.innerHTML = newHtml;
 
 
-        document.querySelectorAll("#usersList > button").forEach(element => {
+    document.querySelectorAll("#usersList > button").forEach(element => {
         element.addEventListener("click", e => {
             let user = e.target.textContent;
 
@@ -105,7 +110,8 @@ headerForm.addEventListener("submit", event => {
 /// function to update the header with a new name
 async function updateMessage(text: string) {
     // this function is always called in a context where we know it is valid
-    let user = auth.currentUser!;
+
+    let user = auth.currentUser;
     addDoc(collection(db, "header"), {
         title: text,
         createdAt: serverTimestamp(),
@@ -137,7 +143,9 @@ const unsubscribeHeader = onSnapshot(query(collection(db, "header"), orderBy("cr
             const data = element.data();
 
             let htmlElement = document.querySelector(`#changeList > #item${i + 1}`)!;
-            let createdDate: Timestamp = data.createdAt;
+
+            let createdDate: Timestamp;
+            if (data.createdAt) {createdDate = data.createdAt} else {createdDate = Timestamp.now()};
             let date = createdDate.toDate();
             let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
