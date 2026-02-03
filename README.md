@@ -3,3 +3,5 @@
 - [x] fix no validation
 - fix css (thx josh)
 - [x] fix login not working because le stupid
+- make it so there are actual firebase rules
+- make accessable

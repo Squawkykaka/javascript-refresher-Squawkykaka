@@ -1,14 +1,38 @@
 <div>
-    <div>
-        <div id="usersList"></div>
+    <div id="container">
         <form id="userFilterForm">
             <label for="user">Username:</label>
             <input type="text" name="user" />
             <button type="submit">Search</button>
         </form>
+        <hr />
+
+        <div id="usersList">
+            <button>lorum</button><button>lorum</button><button>lorum</button
+            ><button>lorum</button><button>lorum</button><button>lorum</button
+            ><button>lorum</button><button>lorum</button><button>lorum</button
+            ><button>lorum</button>
+        </div>
     </div>
     <div id="userMessages"></div>
 </div>
+
+<style is:global>
+    #usersList {
+        display: flex;
+    }
+
+    #usersList button {
+        border: none;
+        background-color: red;
+        padding-right: 10px;
+    }
+
+    #container {
+        padding: 10px;
+        border: 2px solid gray;
+    }
+</style>
 
 <script>
     // fetch 10 users, for the filter list
