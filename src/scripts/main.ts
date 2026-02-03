@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { EmailAuthProvider, getAuth, linkWithCredential, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword } from "firebase/auth";
+import { EmailAuthProvider, getAuth, linkWithCredential, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, getFirestore, increment, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -47,7 +47,7 @@ headerForm.addEventListener("submit", event => {
 async function updateMessage(text: string) {
     // this function is always called in a context where we know it is valid
 
-    let user = auth.currentUser;
+    let user = auth.currentUser!;
     addDoc(collection(db, "header"), {
         title: text,
         createdAt: serverTimestamp(),
@@ -81,16 +81,24 @@ const unsubscribeHeader = onSnapshot(query(collection(db, "header"), orderBy("cr
             let htmlElement = document.querySelector(`#changeList > #item${i + 1}`)!;
 
             let createdDate: Timestamp;
-            if (data.createdAt) {createdDate = data.createdAt} else {createdDate = Timestamp.now()};
+            if (data.createdAt) { createdDate = data.createdAt } else { createdDate = Timestamp.now() };
             let date = createdDate.toDate();
             let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
             let userName = "";
             if (data.userName) { userName = data.userName } else { userName = "Anonymous" };
-            htmlElement.innerText = `
-            <p>${data.title}</p>
-            <p>${formattedDate}</p>
-            <p>${userName}</p>`;
+
+            htmlElement.replaceChildren(
+                makeP(data.title),
+                makeP(formattedDate),
+                makeP(userName)
+            );
+
+            function makeP(text: string) {
+                const p = document.createElement("p");
+                p.textContent = text; // escapes automatically
+                return p;
+            }
         }
     }
 })
@@ -124,9 +132,14 @@ signupForm.addEventListener("submit", event => {
 let loginForm: HTMLFormElement = document.getElementById("loginForm")!;
 loginForm.addEventListener("submit", event => {
     event.preventDefault();
-    const data = new FormData(signupForm);
+    const data = new FormData(loginForm);
     const email = data.get("email");
     const password = data.get("password");
+
+    // signOut(auth);
+
+        console.log(email, password);
+
 
     signInWithEmailAndPassword(auth, email, password).then(() => {
         document.querySelector("#loginForm > p")!.innerHTML = "Success";

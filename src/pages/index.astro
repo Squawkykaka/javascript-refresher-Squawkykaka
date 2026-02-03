@@ -1,6 +1,5 @@
 ---
-import Userbox from "../components/userbox.astro";
-
+import UserBox from "../components/UserBox.astro";
 
 ---
 
@@ -29,20 +28,20 @@ import Userbox from "../components/userbox.astro";
       <div>
         <p id="userName">Anonymous</p>
         <form id="signupForm">
-          <button>Sign Up</button>
+          <button type="submit">Sign Up</button>
           <input type="email" name="email" />
           <input type="password" name="password" />
           <p></p>
         </form>
         <form id="loginForm">
-          <button>Login</button>
+          <button type="submit">Login</button>
           <input type="email" name="email" />
           <input type="password" name="password" />
           <p></p>
         </form>
       </div>
 
-      <Userbox />
+      <UserBox />
       <ul id="changeList" class="changeList">
         <li id="item1"></li>
         <li id="item2"></li>
