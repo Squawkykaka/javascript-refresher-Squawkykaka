@@ -1,4 +1,6 @@
 ---
+import Userbox from "../components/userbox.astro";
+
 
 ---
 
@@ -15,7 +17,9 @@
   <body>
     <h1 id="welcomeMessage">You haven't connected the JavaScript yet</h1>
     <form id="headingForm">
-      <button id="headingButton" type="submit" disabled>Change the HEADING!</button>
+      <button id="headingButton" type="submit" disabled
+        >Change the HEADING!</button
+      >
 
       <label for="newHeadingName">New Heading Name:</label>
       <input type="text" name="newHeadingName" />
@@ -38,17 +42,7 @@
         </form>
       </div>
 
-      <div>
-        <div>
-          <div id="usersList"></div>
-          <form id="userFilterForm">
-            <label for="user">Username:</label>
-            <input type="text" name="user">
-            <button type="submit">Search</button>
-          </form>
-        </div>
-        <div id="userMessages"></div>
-      </div>
+      <Userbox />
       <ul id="changeList" class="changeList">
         <li id="item1"></li>
         <li id="item2"></li>

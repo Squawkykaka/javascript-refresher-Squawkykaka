@@ -21,7 +21,7 @@ const firebaseConfig = {
 let message = document.getElementById("welcomeMessage")!;
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const db = getFirestore(app);
 const auth = getAuth(app);
 signInAnonymously(auth).then(() => {
     let user = auth.currentUser!;
@@ -33,70 +33,6 @@ signInAnonymously(auth).then(() => {
 })
 
 let userName = "Anonymous";
-
-// fetch 10 users, for the filter list
-// a search bar is also there, that allows you to filter users which then get queried 
-// to firestore and when you click it queries last 10 messages from said user
-async function defaultUserList() {
-    const userQuery = query(collection(db, "users"), orderBy("messagesSent", "desc"), limit(10));
-    let snapshot = await getDocs(userQuery);
-
-    let newHtml = formatFirebaseEmails(snapshot.docs)
-
-    document.getElementById("usersList")!.innerHTML = newHtml;
-
-    document.querySelectorAll("#usersList > button").forEach(element => {
-        element.addEventListener("click", e => {
-            let user = e.target.textContent;
-
-            filterMessageBox(user)
-        })
-    })
-}
-defaultUserList()
-
-function formatFirebaseEmails(input: any): string {
-    let newHtml = "";
-    for (let i = 0; i < input.length; i++) {
-        const data = input[i].data();
-        newHtml += `<button>${data.email}</button>`;
-    }
-
-    return newHtml
-}
-
-async function filterUsers(keyword: string) {
-    const userQuery = query(
-        collection(db, "users"),
-        // orderBy("messagesSent", "desc"), 
-        limit(10),
-
-        // a trick to search inside strings https://stackoverflow.com/questions/46568142/google-firestore-query-on-substring-of-a-property-value-text-search
-        where("email", '>=', keyword),
-        where("email", '<=', keyword + '\uf8ff'));
-
-    const snapshot = await getDocs(userQuery);
-    let newHtml = formatFirebaseEmails(snapshot.docs);
-    document.getElementById("usersList")!.innerHTML = newHtml;
-
-
-    document.querySelectorAll("#usersList > button").forEach(element => {
-        element.addEventListener("click", e => {
-            let user = e.target.textContent;
-
-            filterMessageBox(user)
-        })
-    })
-}
-
-// filtering user list
-let userFilterForm: HTMLFormElement = document.getElementById("userFilterForm")!;
-userFilterForm.addEventListener("submit", event => {
-    event.preventDefault();
-    const data = new FormData(userFilterForm);
-    const userSearch = data.get("user");
-    filterUsers(userSearch);
-});
 
 // changing header with a form
 let headerForm: HTMLFormElement = document.getElementById("headingForm")!;
@@ -133,7 +69,7 @@ const unsubscribeHeader = onSnapshot(query(collection(db, "header"), orderBy("cr
         const data = doc.data();
 
         let new_title = data.title;
-        message.innerHTML = new_title;
+        message.innerText = new_title;
 
         console.debug("New Title: ", new_title);
 
@@ -151,7 +87,7 @@ const unsubscribeHeader = onSnapshot(query(collection(db, "header"), orderBy("cr
 
             let userName = "";
             if (data.userName) { userName = data.userName } else { userName = "Anonymous" };
-            htmlElement.innerHTML = `
+            htmlElement.innerText = `
             <p>${data.title}</p>
             <p>${formattedDate}</p>
             <p>${userName}</p>`;
@@ -222,26 +158,3 @@ onAuthStateChanged(auth, (user) => {
         // ...
     }
 });
-
-async function filterMessageBox(user: string) {
-    const userQuery = query(collection(db, "header"), orderBy("createdAt", "desc"), limit(10), where("userName", "==", user));
-    const snapshot = await getDocs(userQuery);
-
-    let newHtml = "";
-    snapshot.docs.forEach(element => {
-
-        let data: { title: string, createdAt: Timestamp, userName: string, /* userRef */ } = element.data();
-
-        let date: Date = data.createdAt.toDate();
-        let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-
-        newHtml +=
-            `<div>
-            <p>${data.title}</p>
-            <p>${formattedDate}</p>
-        </div>`
-    })
-
-    document.getElementById("userMessages")!.innerHTML = newHtml;
-    console.log(snapshot.docs)
-}

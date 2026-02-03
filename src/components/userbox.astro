@@ -1,0 +1,124 @@
+<div>
+    <div>
+        <div id="usersList"></div>
+        <form id="userFilterForm">
+            <label for="user">Username:</label>
+            <input type="text" name="user" />
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="userMessages"></div>
+</div>
+
+<script>
+    // fetch 10 users, for the filter list
+    // a search bar is also there, that allows you to filter users which then get queried
+
+    import {
+        collection,
+        getDocs,
+        limit,
+        orderBy,
+        query,
+        Timestamp,
+        where,
+    } from "firebase/firestore";
+    import { db } from "../scripts/main";
+
+    // to firestore and when you click it queries last 10 messages from said user
+    async function defaultUserList() {
+        const userQuery = query(
+            collection(db, "users"),
+            orderBy("messagesSent", "desc"),
+            limit(10),
+        );
+        let snapshot = await getDocs(userQuery);
+
+        let newHtml = formatFirebaseEmails(snapshot.docs);
+
+        document.getElementById("usersList")!.innerHTML = newHtml;
+
+        document.querySelectorAll("#usersList > button").forEach((element) => {
+            element.addEventListener("click", (e) => {
+                let user = e.target.textContent;
+
+                filterMessageBox(user);
+            });
+        });
+    }
+    defaultUserList();
+
+    function formatFirebaseEmails(input: any): string {
+        let newHtml = "";
+        for (let i = 0; i < input.length; i++) {
+            const data = input[i].data();
+            newHtml += `<button>${data.email}</button>`;
+        }
+
+        return newHtml;
+    }
+
+    async function filterUsers(keyword: string) {
+        const userQuery = query(
+            collection(db, "users"),
+            // orderBy("messagesSent", "desc"),
+            limit(10),
+
+            // a trick to search inside strings https://stackoverflow.com/questions/46568142/google-firestore-query-on-substring-of-a-property-value-text-search
+            where("email", ">=", keyword),
+            where("email", "<=", keyword + "\uf8ff"),
+        );
+
+        const snapshot = await getDocs(userQuery);
+        let newHtml = formatFirebaseEmails(snapshot.docs);
+        document.getElementById("usersList")!.innerHTML = newHtml;
+
+        document.querySelectorAll("#usersList > button").forEach((element) => {
+            element.addEventListener("click", (e) => {
+                let user = e.target.textContent;
+
+                filterMessageBox(user);
+            });
+        });
+    }
+
+    async function filterMessageBox(user: string) {
+        const userQuery = query(
+            collection(db, "header"),
+            orderBy("createdAt", "desc"),
+            limit(10),
+            where("userName", "==", user),
+        );
+        const snapshot = await getDocs(userQuery);
+
+        let newHtml = "";
+        snapshot.docs.forEach((element) => {
+            let data: {
+                title: string;
+                createdAt: Timestamp;
+                userName: string; /* userRef */
+            } = element.data();
+
+            let date: Date = data.createdAt.toDate();
+            let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+            newHtml += `<div>
+            <p>${data.title}</p>
+            <p>${formattedDate}</p>
+        </div>`;
+        });
+
+        document.getElementById("userMessages")!.innerHTML = newHtml;
+        console.log(snapshot.docs);
+    }
+
+    // filtering user list
+    let userFilterForm: HTMLFormElement =
+        document.getElementById("userFilterForm")!;
+    userFilterForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const data = new FormData(userFilterForm);
+        const userSearch = data.get("user");
+        filterUsers(userSearch);
+    });
+</script>
