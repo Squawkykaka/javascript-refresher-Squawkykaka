@@ -36,12 +36,27 @@
 </style>
 
 <script>
+  import {
+    collection,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    QueryDocumentSnapshot,
+    Timestamp,
+    where,
+  } from "firebase/firestore";
+  import { db } from "../scripts/firestore";
+  import { makeP } from "../scripts/helper";
+  
   type UserDoc = {
     email: string;
+    displayName: string,
+    messagesSent: number,
   };
 
   type MessageDoc = {
-    title: string;
+    text: string;
     createdAt: Timestamp;
     userName: string;
   };
@@ -59,8 +74,8 @@
   async function searchUsers(keyword: string) {
     const q = query(
       collection(db, "users"),
-      where("email", ">=", keyword),
-      where("email", "<=", keyword + "\uf8ff"),
+      where("displayName", ">=", keyword),
+      where("displayName", "<=", keyword + "\uf8ff"),
       limit(10),
     );
 
@@ -69,7 +84,8 @@
 
   async function fetchUserMessages(user: string) {
     const q = query(
-      collection(db, "header"),
+      collection(db, "messages"),
+      // TODO: replace the `userName` field in messages with displayName to be more clear.
       where("userName", "==", user),
       orderBy("createdAt", "desc"),
       limit(10),
@@ -77,21 +93,6 @@
 
     return getDocs(q);
   }
-
-  // fetch 10 users, for the filter list
-  // a search bar is also there, that allows you to filter users which then get queried
-
-  import {
-    collection,
-    getDocs,
-    limit,
-    orderBy,
-    query,
-    QueryDocumentSnapshot,
-    Timestamp,
-    where,
-  } from "firebase/firestore";
-  import { db } from "../scripts/firestore";
 
   const usersList = document.getElementById("usersList")!;
   const userMessages = document.getElementById("userMessages")!;
@@ -101,28 +102,34 @@
 
     docs.forEach((doc) => {
       const data = doc.data() as UserDoc;
+      console.log(data);
+      
       if (!data.email) return;
 
       const btn = document.createElement("button");
-      btn.textContent = data.email;
-      btn.dataset.user = data.email;
+      btn.textContent = data.displayName;
+      btn.dataset.user = data.displayName;
 
       usersList.appendChild(btn);
     });
   }
 
   function renderMessages(docs: QueryDocumentSnapshot[]) {
-    userMessages.innerHTML = "";
+    userMessages.innerHTML = "";       
 
     docs.forEach((doc) => {
       const data = doc.data() as MessageDoc;
       const date = data.createdAt.toDate();
 
       const wrapper = document.createElement("div");
-      wrapper.innerHTML = `
-            <p>${data.title}</p>
-            <p>${date.toLocaleTimeString()}</p>
-        `;
+      wrapper.replaceChildren(
+        makeP(data.text),
+        makeP(date.toLocaleTimeString())
+      )
+      // wrapper.innerHTML = `
+      //       <p>${data.text}</p>
+      //       <p>${date.toLocaleTimeString()}</p>
+      //   `;
 
       userMessages.appendChild(wrapper);
     });
@@ -148,6 +155,7 @@
     const keyword = String(formData.get("user") || "");
 
     const snapshot = await searchUsers(keyword);
+    
     renderUserButtons(snapshot.docs);
   });
 

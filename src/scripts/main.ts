@@ -1,10 +1,10 @@
-import { initializeApp } from "firebase/app";
-import { browserSessionPersistence, EmailAuthProvider, getAuth, linkWithCredential, onAuthStateChanged, setPersistence, signInAnonymously, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, getDocs, getFirestore, increment, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
-import { auth, db, getUser, sendMessage, signInAnon } from "./firestore";
+import { EmailAuthProvider, linkWithCredential, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { collection, doc, limit, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
+import { auth, db, getUser, initAuth, sendMessage, signInAnon } from "./firestore";
+import { formatTime, makeP } from "./helper";
 
 (function init() {
-    signInAnon();
+    initAuth();
 })();
 
 // changing header with a form
@@ -17,103 +17,87 @@ headerForm.addEventListener("submit", event => {
     sendMessage(message);
 });
 
-
 // when a change to the database is detected, pulls it and applies it to the header and update list.
-const unsubscribeHeader = onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(5)), (snapshot) => {
-    if (!snapshot.empty) {
-        for (let i = 0; i < snapshot.docs.length; i++) {
-            const element = snapshot.docs[i];
-            const data = element.data();
+onSnapshot(
+    query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(5)),
+    (snapshot) => {
+        if (snapshot.empty) return;
 
-            let htmlElement = document.querySelector(`#changeList > #item${i + 1}`) as Element;
+        snapshot.docs.forEach((docSnap, index) => {
+            const data = docSnap.data();
+            let container = document.querySelector(`#changeList > #item${index + 1}`) as Element;
 
-            let createdDate: Timestamp;
-            if (data.createdAt) { createdDate = data.createdAt; } else { createdDate = Timestamp.now(); };
-            let date = createdDate.toDate().toLocaleTimeString();
+            if (!container) return;
 
-            let userName = "";
-            if (data.userName) { userName = data.userName; } else { userName = "Anonymous"; };
-
-            htmlElement.replaceChildren(
+            container.replaceChildren(
                 makeP(data.text),
-                makeP(date),
-                makeP(userName)
-            );
-
-            function makeP(text: string) {
-                const p = document.createElement("p");
-                p.textContent = text; // escapes automatically
-                return p;
-            }
-        }
+                makeP(formatTime(data.createdAt)),
+                makeP(data.userName ?? "Anonymous")
+            )
+        })
     }
-});
+);
 
-// Signup
-let signupForm = document.getElementById("signupForm") as HTMLFormElement;
-signupForm.addEventListener("submit", event => {
-    event.preventDefault();
-    const data = new FormData(signupForm);
+function onFormSubmit(
+    formId: string,
+    handler: (data: FormData) => void
+) {
+    const form = document.getElementById(formId) as HTMLFormElement;
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        handler(new FormData(form));
+    });
+}
+
+onFormSubmit("signupForm", async (data) => {
     const email = data.get("email") as string;
     const password = data.get("password") as string;
     const displayName = data.get("displayName") as string;
-    const user = getUser();
+    let user = getUser();
 
     updateProfile(user, {
         displayName: displayName,
     });
 
     const credential = EmailAuthProvider.credential(email, password);
-    linkWithCredential(user, credential)
-        .then((usercred) => {
-            const user = usercred.user;
-            document.querySelector("#signupForm > p")!.innerHTML = "Success";
 
-            setDoc(doc(db, "users", user.uid), {
-                displayName: user.displayName,
-                email: user.email,
-                messagesSent: 0,
-            });
-        }).catch((error) => {
-            console.error("Error upgrading anonymous account", error);
-            document.querySelector("#signupForm > p")!.innerHTML = error;
+    try {
+        user = (await linkWithCredential(user, credential)).user;
+        setDoc(doc(db, "users", user.uid), {
+            displayName: user.displayName,
+            email: user.email,
+            messagesSent: 0,
         });
+    } catch (error) {
+        console.error("Error upgrading anonymous account", error);
+        document.querySelector("#signupForm > p")!.innerHTML = error;
+    }
+
 });
 
 // Login
-let loginForm = document.getElementById("loginForm") as HTMLFormElement;
-loginForm.addEventListener("submit", event => {
-    event.preventDefault();
-    const data = new FormData(loginForm);
-    const email = data.get("email");
-    const password = data.get("password");
 
-    console.log(email, password);
+onFormSubmit("loginForm", async (data) => {
+    try {
+        await signInWithEmailAndPassword(
+            auth,
+            String(data.get("email")),
+            String(data.get("password"))
+        );
+    } catch (error) {
+        console.log(error.code, ": ", error.message);
+        document.querySelector("#loginForm > p")!.innerHTML = error.message;
+    }
 
-    signInWithEmailAndPassword(auth, String(email), String(password)).then(() => {
-        document.querySelector("#loginForm > p")!.innerHTML = "Success";
+})
 
-    }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        console.log(errorCode, ": ", errorMessage);
-        document.querySelector("#loginForm > p")!.innerHTML = errorMessage;
-    });;
-});
-
-// This enables the heading update button, and sets the userName variable for easy access
-onAuthStateChanged(auth, (user) => {
+// This enables the message send button
+onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        let user = getUser();
         document.getElementById("userName")!.innerText = user.displayName || (user.email || "Anonymous");
 
         document.querySelector("#headingButton")!.removeAttribute("disabled");
-        // ...
     } else {
-        // User is signed out
-        // ...
+        await signInAnon();
     }
 });
