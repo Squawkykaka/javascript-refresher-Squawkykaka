@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, getAuth, setPersistence, signInAnonymously, type Auth, type User } from "firebase/auth";
 import { addDoc, collection, doc, getFirestore, increment, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { showError } from "./helper";
+import { messageConverter, userConverter } from "./models";
 
 const firebaseConfig = {
 
@@ -56,15 +57,24 @@ export function getUser(): User {
 export async function sendMessage(message: string) {
     let user = getUser();
 
-    addDoc(collection(db, "messages"), {
+    addDoc(messagesCol, {
         text: message,
         createdAt: serverTimestamp(),
         userRef: doc(db, "users", user.uid),
-        userName: user.displayName
+        userName: user.displayName || "Anonymous"
     });
 
-    updateDoc(doc(db, "users", user.uid), {
+    updateDoc(doc(usersCol, user.uid), {
         // filtering by messages sent seems like a relatively decent sorting mechanism for default
-        messagesSent: increment(1)
+        messagesSent: increment(1),
     });
 }
+
+// *************
+// Premade collections to stop errors.
+
+export const messagesCol = collection(db, "messages")
+    .withConverter(messageConverter);
+
+export const usersCol = collection(db, "users")
+    .withConverter(userConverter);

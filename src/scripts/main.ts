@@ -1,7 +1,7 @@
 import { EmailAuthProvider, linkWithCredential, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { collection, doc, limit, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
-import { auth, db, getUser, initAuth, sendMessage, signInAnon } from "./firestore";
-import { formatTime, makeP } from "./helper";
+import { auth, db, getUser, initAuth, messagesCol, sendMessage, signInAnon, usersCol } from "./firestore";
+import { formatTime, getRequiredField, makeP } from "./helper";
 
 (function init() {
     initAuth();
@@ -19,7 +19,7 @@ headerForm.addEventListener("submit", event => {
 
 // when a change to the database is detected, pulls it and applies it to the header and update list.
 onSnapshot(
-    query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(5)),
+    query(messagesCol, orderBy("createdAt", "desc"), limit(5)),
     (snapshot) => {
         if (snapshot.empty) return;
 
@@ -32,7 +32,7 @@ onSnapshot(
             container.replaceChildren(
                 makeP(data.text),
                 makeP(formatTime(data.createdAt)),
-                makeP(data.userName ?? "Anonymous")
+                makeP(data.userName)
             )
         })
     }
@@ -50,9 +50,9 @@ function onFormSubmit(
 }
 
 onFormSubmit("signupForm", async (data) => {
-    const email = data.get("email") as string;
-    const password = data.get("password") as string;
-    const displayName = data.get("displayName") as string;
+    const email = getRequiredField(data, "email");
+    const password = getRequiredField(data, "password");
+    const displayName = getRequiredField(data, "displayName");
     let user = getUser();
 
     updateProfile(user, {
@@ -63,7 +63,7 @@ onFormSubmit("signupForm", async (data) => {
 
     try {
         user = (await linkWithCredential(user, credential)).user;
-        setDoc(doc(db, "users", user.uid), {
+        setDoc(doc(usersCol, user.uid), {
             displayName: user.displayName,
             email: user.email,
             messagesSent: 0,

@@ -46,24 +46,14 @@
     Timestamp,
     where,
   } from "firebase/firestore";
-  import { db } from "../scripts/firestore";
+  import { messagesCol, usersCol } from "../scripts/firestore";
   import { makeP } from "../scripts/helper";
+import type { UserProfile } from "firebase/auth";
+import type { Message } from "../scripts/models";
   
-  type UserDoc = {
-    email: string;
-    displayName: string,
-    messagesSent: number,
-  };
-
-  type MessageDoc = {
-    text: string;
-    createdAt: Timestamp;
-    userName: string;
-  };
-
   async function fetchTopUsers() {
     const q = query(
-      collection(db, "users"),
+      usersCol,
       orderBy("messagesSent", "desc"),
       limit(10),
     );
@@ -73,7 +63,7 @@
 
   async function searchUsers(keyword: string) {
     const q = query(
-      collection(db, "users"),
+      usersCol,
       where("displayName", ">=", keyword),
       where("displayName", "<=", keyword + "\uf8ff"),
       limit(10),
@@ -84,7 +74,7 @@
 
   async function fetchUserMessages(user: string) {
     const q = query(
-      collection(db, "messages"),
+      messagesCol,
       // TODO: replace the `userName` field in messages with displayName to be more clear.
       where("userName", "==", user),
       orderBy("createdAt", "desc"),
@@ -97,11 +87,11 @@
   const usersList = document.getElementById("usersList")!;
   const userMessages = document.getElementById("userMessages")!;
 
-  function renderUserButtons(docs: QueryDocumentSnapshot[]) {
+  function renderUserButtons(docs: QueryDocumentSnapshot<UserProfile>[]) {
     usersList.innerHTML = "";
 
     docs.forEach((doc) => {
-      const data = doc.data() as UserDoc;
+      const data = doc.data();
       console.log(data);
       
       if (!data.email) return;
@@ -114,11 +104,11 @@
     });
   }
 
-  function renderMessages(docs: QueryDocumentSnapshot[]) {
+  function renderMessages(docs: QueryDocumentSnapshot<Message>[]) {
     userMessages.innerHTML = "";       
 
     docs.forEach((doc) => {
-      const data = doc.data() as MessageDoc;
+      const data = doc.data();
       const date = data.createdAt.toDate();
 
       const wrapper = document.createElement("div");
@@ -126,10 +116,6 @@
         makeP(data.text),
         makeP(date.toLocaleTimeString())
       )
-      // wrapper.innerHTML = `
-      //       <p>${data.text}</p>
-      //       <p>${date.toLocaleTimeString()}</p>
-      //   `;
 
       userMessages.appendChild(wrapper);
     });

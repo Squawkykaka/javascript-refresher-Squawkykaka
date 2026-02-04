@@ -14,3 +14,11 @@ export function formatTime(ts?: Timestamp) {
     const date = (ts ?? Timestamp.now()).toDate();
     return date.toLocaleTimeString();
 }
+
+export function getRequiredField(data: FormData, name: string): string {
+    const value = data.get(name);
+    if (typeof value !== "string" || value.trim() === "") {
+        throw new Error(`Missing field: ${name}`);
+    }
+    return value;
+}
