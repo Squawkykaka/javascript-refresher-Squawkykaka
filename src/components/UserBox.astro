@@ -1,151 +1,158 @@
 <div>
-    <div id="container">
-        <form id="userFilterForm">
-            <label for="user">Username:</label>
-            <input type="text" name="user" />
-            <button type="submit">Search</button>
-        </form>
-        <hr />
+  <div id="container">
+    <form id="userFilterForm">
+      <label for="user">Username:</label>
+      <input type="text" name="user" />
+      <button type="submit">Search</button>
+    </form>
+    <hr />
 
-        <div id="usersList">
-            <button>lorum</button><button>lorum</button><button>lorum</button
-            ><button>lorum</button><button>lorum</button><button>lorum</button
-            ><button>lorum</button><button>lorum</button><button>lorum</button
-            ><button>lorum</button>
-        </div>
+    <div id="usersList">
+      <button>lorum</button><button>lorum</button><button>lorum</button><button
+        >lorum</button
+      ><button>lorum</button><button>lorum</button><button>lorum</button><button
+        >lorum</button
+      ><button>lorum</button><button>lorum</button>
     </div>
-    <div id="userMessages"></div>
+  </div>
+  <div id="userMessages"></div>
 </div>
 
 <style is:global>
-    #usersList {
-        display: flex;
-    }
+  #usersList {
+    display: flex;
+  }
 
-    #usersList button {
-        border: none;
-        background-color: red;
-        padding-right: 10px;
-    }
+  #usersList button {
+    border: none;
+    background-color: red;
+    padding-right: 10px;
+  }
 
-    #container {
-        padding: 10px;
-        border: 2px solid gray;
-    }
+  #container {
+    padding: 10px;
+    border: 2px solid gray;
+  }
 </style>
 
 <script>
-    // fetch 10 users, for the filter list
-    // a search bar is also there, that allows you to filter users which then get queried
+  type UserDoc = {
+    email: string;
+  };
 
-    import {
-        collection,
-        getDocs,
-        limit,
-        orderBy,
-        query,
-        Timestamp,
-        where,
-    } from "firebase/firestore";
-    import { db } from "../scripts/main";
-import { undefined } from "astro:schema";
+  type MessageDoc = {
+    title: string;
+    createdAt: Timestamp;
+    userName: string;
+  };
 
-    // to firestore and when you click it queries last 10 messages from said user
-    async function defaultUserList() {
-        const userQuery = query(
-            collection(db, "users"),
-            orderBy("messagesSent", "desc"),
-            limit(10),
-        );
-        let snapshot = await getDocs(userQuery);
+  async function fetchTopUsers() {
+    const q = query(
+      collection(db, "users"),
+      orderBy("messagesSent", "desc"),
+      limit(10),
+    );
 
-        let newHtml = formatFirebaseEmails(snapshot.docs);
+    return getDocs(q);
+  }
 
-        document.getElementById("usersList")!.innerHTML = newHtml;
+  async function searchUsers(keyword: string) {
+    const q = query(
+      collection(db, "users"),
+      where("email", ">=", keyword),
+      where("email", "<=", keyword + "\uf8ff"),
+      limit(10),
+    );
 
-        document.querySelectorAll("#usersList > button").forEach((element) => {
-            element.addEventListener("click", (e) => {
-                let user = e.target.textContent;
+    return getDocs(q);
+  }
 
-                filterMessageBox(user);
-            });
-        });
-    }
-    defaultUserList();
+  async function fetchUserMessages(user: string) {
+    const q = query(
+      collection(db, "header"),
+      where("userName", "==", user),
+      orderBy("createdAt", "desc"),
+      limit(10),
+    );
 
-    function formatFirebaseEmails(input: any): string {
-        let newHtml = "";
-        for (let i = 0; i < input.length; i++) {
-            const data = input[i].data();
-            if (data.email) {
-                newHtml += `<button>${data.email}</button>`;
-            }
-        }
+    return getDocs(q);
+  }
 
-        return newHtml;
-    }
+  // fetch 10 users, for the filter list
+  // a search bar is also there, that allows you to filter users which then get queried
 
-    async function filterUsers(keyword: string) {
-        const userQuery = query(
-            collection(db, "users"),
-            // orderBy("messagesSent", "desc"),
-            limit(10),
+  import {
+    collection,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    QueryDocumentSnapshot,
+    Timestamp,
+    where,
+  } from "firebase/firestore";
+  import { db } from "../scripts/firestore";
 
-            // a trick to search inside strings https://stackoverflow.com/questions/46568142/google-firestore-query-on-substring-of-a-property-value-text-search
-            where("email", ">=", keyword),
-            where("email", "<=", keyword + "\uf8ff"),
-        );
+  const usersList = document.getElementById("usersList")!;
+  const userMessages = document.getElementById("userMessages")!;
 
-        const snapshot = await getDocs(userQuery);
-        let newHtml = formatFirebaseEmails(snapshot.docs);
-        document.getElementById("usersList")!.innerHTML = newHtml;
+  function renderUserButtons(docs: QueryDocumentSnapshot[]) {
+    usersList.innerHTML = "";
 
-        document.querySelectorAll("#usersList > button").forEach((element) => {
-            element.addEventListener("click", (e) => {
-                let user = e.target.textContent;
+    docs.forEach((doc) => {
+      const data = doc.data() as UserDoc;
+      if (!data.email) return;
 
-                filterMessageBox(user);
-            });
-        });
-    }
+      const btn = document.createElement("button");
+      btn.textContent = data.email;
+      btn.dataset.user = data.email;
 
-    async function filterMessageBox(user: string) {
-        const userQuery = query(
-            collection(db, "header"),
-            orderBy("createdAt", "desc"),
-            limit(10),
-            where("userName", "==", user),
-        );
-        const snapshot = await getDocs(userQuery);
-
-        let newHtml = "";
-        snapshot.docs.forEach((element) => {
-            let data: {
-                title: string;
-                createdAt: Timestamp;
-                userName: string; /* userRef */
-            } = element.data();
-
-            let date: Date = data.createdAt.toDate();
-            let formattedDate = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-
-            newHtml += `<div>
-            <p>${data.title}</p>
-            <p>${formattedDate}</p>
-        </div>`;
-        });
-
-        document.getElementById("userMessages")!.innerHTML = newHtml;
-        console.log(snapshot.docs);
-    }
-
-    // filtering user list
-    let userFilterForm: HTMLFormElement =
-        document.getElementById("userFilterForm")!;
-    userFilterForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const data = new FormData(userFilterForm);
-        const userSearch = data.get("user");
-        filterUsers(userSearch);
+      usersList.appendChild(btn);
     });
+  }
+
+  function renderMessages(docs: QueryDocumentSnapshot[]) {
+    userMessages.innerHTML = "";
+
+    docs.forEach((doc) => {
+      const data = doc.data() as MessageDoc;
+      const date = data.createdAt.toDate();
+
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+            <p>${data.title}</p>
+            <p>${date.toLocaleTimeString()}</p>
+        `;
+
+      userMessages.appendChild(wrapper);
+    });
+  }
+
+  usersList.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== "BUTTON") return;
+
+    const user = target.dataset.user!;
+    const snapshot = await fetchUserMessages(user);
+    renderMessages(snapshot.docs);
+  });
+
+  const userFilterForm = document.getElementById(
+    "userFilterForm",
+  ) as HTMLFormElement;
+
+  userFilterForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(userFilterForm);
+    const keyword = String(formData.get("user") || "");
+
+    const snapshot = await searchUsers(keyword);
+    renderUserButtons(snapshot.docs);
+  });
+
+  (async function init() {
+    const snapshot = await fetchTopUsers();
+    renderUserButtons(snapshot.docs);
+  })();
 </script>

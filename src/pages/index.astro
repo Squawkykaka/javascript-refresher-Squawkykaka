@@ -13,14 +13,11 @@ import UserBox from "../components/UserBox.astro";
     <title>Astro</title>
   </head>
   <body>
-    <h1 id="welcomeMessage">You haven't connected the JavaScript yet</h1>
     <form id="headingForm">
-      <button id="headingButton" type="submit" disabled
-        >Change the HEADING!</button
-      >
+      <button id="headingButton" type="submit" disabled>Send Message</button>
 
-      <label for="newHeadingName">New Heading Name:</label>
-      <input type="text" name="newHeadingName" />
+      <label for="message">Message:</label>
+      <input type="text" name="message" />
     </form>
 
     <div>
@@ -28,9 +25,12 @@ import UserBox from "../components/UserBox.astro";
         <p id="userName">Anonymous</p>
         <form id="signupForm">
           <button type="submit">Sign Up</button>
+          <label for="email">Email</label>
           <input type="email" name="email" />
+          <label for="password">Password</label>
           <input type="password" name="password" />
-          <p></p>
+          <label for="displayName">Display Name</label>
+          <input type="text" name="displayName" />
         </form>
         <form id="loginForm">
           <button type="submit">Login</button>
