@@ -36,10 +36,7 @@ export async function initAuth() {
 
 export async function signInAnon() {
     try {
-        const result = await signInAnonymously(auth);
-        // await setDoc(doc(db, "users", result.user.uid), {
-        //     messagesSent: 0,
-        // });
+        await signInAnonymously(auth);
     } catch (err) {
         showError(err);
     }

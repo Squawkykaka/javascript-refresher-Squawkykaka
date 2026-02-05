@@ -5,4 +5,9 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
     site: 'https://squawkykaka.github.io',
     base: '/javascript-refresher-Squawkykaka',
+    vite: {
+        esbuild: {
+            legalComments: "external",
+        },
+    }
 });

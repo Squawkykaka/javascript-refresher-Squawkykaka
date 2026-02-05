@@ -22,3 +22,14 @@ export function getRequiredField(data: FormData, name: string): string {
     }
     return value;
 }
+
+export function onFormSubmit(
+    formId: string,
+    handler: (data: FormData) => void
+) {
+    const form = document.getElementById(formId) as HTMLFormElement;
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        handler(new FormData(form));
+    });
+}

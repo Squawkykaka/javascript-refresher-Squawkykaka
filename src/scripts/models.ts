@@ -1,5 +1,4 @@
-import { collection, DocumentReference, Timestamp, type DocumentData, type FirestoreDataConverter, type QueryDocumentSnapshot, type SnapshotOptions } from "firebase/firestore"
-import { db } from "./firestore";
+import { DocumentReference, Timestamp, type DocumentData, type FirestoreDataConverter, type QueryDocumentSnapshot, type SnapshotOptions } from "firebase/firestore"
 
 export type Message = {
     text: string,

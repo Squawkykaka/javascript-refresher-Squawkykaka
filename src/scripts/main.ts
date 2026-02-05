@@ -1,21 +1,16 @@
 import { EmailAuthProvider, linkWithCredential, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { collection, doc, limit, onSnapshot, orderBy, query, setDoc, Timestamp } from "firebase/firestore";
-import { auth, db, getUser, initAuth, messagesCol, sendMessage, signInAnon, usersCol } from "./firestore";
-import { formatTime, getRequiredField, makeP } from "./helper";
+import { doc, limit, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
+import { auth, getUser, initAuth, messagesCol, sendMessage, signInAnon, usersCol } from "./firestore";
+import { formatTime, getRequiredField, makeP, onFormSubmit } from "./helper";
 
 (function init() {
     initAuth();
 })();
 
-// changing header with a form
-let headerForm = document.getElementById("headingForm") as HTMLFormElement;
-headerForm.addEventListener("submit", event => {
-    event.preventDefault();
-    const data = new FormData(headerForm);
-
-    const message = String(data.get("message") || "");
+onFormSubmit("headingForm", (data) => {
+    const message = String(data.get("message"))
     sendMessage(message);
-});
+})
 
 // when a change to the database is detected, pulls it and applies it to the header and update list.
 onSnapshot(
@@ -37,17 +32,6 @@ onSnapshot(
         })
     }
 );
-
-function onFormSubmit(
-    formId: string,
-    handler: (data: FormData) => void
-) {
-    const form = document.getElementById(formId) as HTMLFormElement;
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        handler(new FormData(form));
-    });
-}
 
 onFormSubmit("signupForm", async (data) => {
     const email = getRequiredField(data, "email");
