@@ -7,13 +7,7 @@
     </form>
     <hr />
 
-    <div id="usersList">
-      <button>lorum</button><button>lorum</button><button>lorum</button><button
-        >lorum</button
-      ><button>lorum</button><button>lorum</button><button>lorum</button><button
-        >lorum</button
-      ><button>lorum</button><button>lorum</button>
-    </div>
+    <div id="usersList"></div>
   </div>
   <div id="userMessages"></div>
 </div>
@@ -48,15 +42,11 @@
   } from "firebase/firestore";
   import { messagesCol, usersCol } from "../scripts/firestore";
   import { makeP } from "../scripts/helper";
-import type { UserProfile } from "firebase/auth";
-import type { Message } from "../scripts/models";
-  
+  import type { UserProfile } from "firebase/auth";
+  import type { Message } from "../scripts/models";
+
   async function fetchTopUsers() {
-    const q = query(
-      usersCol,
-      orderBy("messagesSent", "desc"),
-      limit(10),
-    );
+    const q = query(usersCol, orderBy("messagesSent", "desc"), limit(10));
 
     return getDocs(q);
   }
@@ -93,7 +83,7 @@ import type { Message } from "../scripts/models";
     docs.forEach((doc) => {
       const data = doc.data();
       console.log(data);
-      
+
       if (!data.email) return;
 
       const btn = document.createElement("button");
@@ -105,7 +95,7 @@ import type { Message } from "../scripts/models";
   }
 
   function renderMessages(docs: QueryDocumentSnapshot<Message>[]) {
-    userMessages.innerHTML = "";       
+    userMessages.innerHTML = "";
 
     docs.forEach((doc) => {
       const data = doc.data();
@@ -114,8 +104,8 @@ import type { Message } from "../scripts/models";
       const wrapper = document.createElement("div");
       wrapper.replaceChildren(
         makeP(data.text),
-        makeP(date.toLocaleTimeString())
-      )
+        makeP(date.toLocaleTimeString()),
+      );
 
       userMessages.appendChild(wrapper);
     });
@@ -141,7 +131,7 @@ import type { Message } from "../scripts/models";
     const keyword = String(formData.get("user") || "");
 
     const snapshot = await searchUsers(keyword);
-    
+
     renderUserButtons(snapshot.docs);
   });
 
