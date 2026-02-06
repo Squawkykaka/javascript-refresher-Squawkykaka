@@ -1,5 +1,8 @@
 ---
+import { Image } from "astro:assets";
 import UserBox from "../components/UserBox.astro";
+
+import send from "../images/send.svg";
 ---
 
 <html lang="en">
@@ -13,123 +16,195 @@ import UserBox from "../components/UserBox.astro";
     <title>Astro</title>
   </head>
   <body>
-    <form id="headingForm">
-      <button id="headingButton" type="submit" disabled>Send Message</button>
+    <div id="content">
+      <p id="userName">Anonymous</p>
 
-      <label for="message">Message:</label>
-      <input type="text" name="message" />
-    </form>
+      <div class="loginSection">
+        <details>
+          <summary>Login/Signup</summary>
+          <form id="signupForm">
+            <button type="submit">Sign Up</button>
+            <input type="email" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <input type="text" name="displayName" placeholder="Display Name" />
+          </form>
+          <form id="loginForm">
+            <button type="submit">Login</button>
+            <input type="email" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <p></p>
+          </form>
+        </details>
 
-    <div>
-      <div>
-        <p id="userName">Anonymous</p>
-        <form id="signupForm">
-          <p></p>
-          <button type="submit">Sign Up</button>
-          <label for="email">Email</label>
-          <input type="email" name="email" />
-          <label for="password">Password</label>
-          <input type="password" name="password" />
-          <label for="displayName">Display Name</label>
-          <input type="text" name="displayName" />
-        </form>
-        <form id="loginForm">
-          <button type="submit">Login</button>
-          <input type="email" name="email" />
-          <input type="password" name="password" />
-          <p></p>
+        <div>
+          <UserBox />
+        </div>
+      </div>
+
+      <div class="messageSection">
+        <ul id="changeList">
+          <li id="item5"></li>
+          <li id="item4"></li>
+          <li id="item3"></li>
+          <li id="item2"></li>
+          <li id="item1"></li>
+        </ul>
+
+        <form id="headingForm">
+          <input type="text" name="message" placeholder="Message" />
+
+          <button id="headingButton" type="submit" disabled>
+            <Image src={send} alt="paper plane send icon" loading="eager" />
+          </button>
         </form>
       </div>
 
-      <UserBox />
-      <ul id="changeList" class="changeList">
-        <li id="item1"></li>
-        <li id="item2"></li>
-        <li id="item3"></li>
-        <li id="item4"></li>
-        <li id="item5"></li>
-      </ul>
-    </div>
-
-    <details>
-      <summary>The instructions for the project</summary>
-      <p>
-        Your tasks:
-        <h2>JavaScript</h2>
-        <ul>
-          <li>
-            Connect the JavaScript file - this page will tell you when it is
-            done ✅
-          </li>
-          <li>
-            Add a button - Make it change the heading "You pressed the button!"
-            ✅
-          </li>
-          <li>Add a text input</li>
-          <li>The button puts the text in the heading</li>
-          <li>
-            Get rid of the alert - the button updates the heading of this page
-            ✅
-          </li>
-        </ul>
-        <h4>Firebase basics</h4>
-
-        <ul>
-          <li>Create a new Firebase or re-use yours from last year ✅</li>
-          <li>Remember how to connect up the 'authorised domains'</li>
-          <li>Add a button - Make it save the text to Firebase ✅</li>
-          <li>
-            Add another button - Make it read the message from Firebase and
-            write it to the heading of this page ✅
-          </li>
-        </ul>
-        <h4>Firebase logins</h4>
-        <ul>
-          <li>Use Google Authentication</li>
-          <li>
-            Change what the first button does. Now it saves the text and the
-            user who entered it ✅
-          </li>
-          <li>
-            Change what the second button does. Now it displays all the messages
-            and who added them ✅
-          </li>
-        </ul>
-        <h4>Extension</h4>
-        <ul>
-          <li>Firebase now stores a list of messages saved by each user ✅</li>
-          <li>There is a button that only displays your messages ✅</li>
-          <li>
-            You can filter to only display messages from a specific user ✅
-          </li>
-        </ul>
+      <!-- Project Details -->
+      <details style="margin-top: 2ch;">
+        <summary>The instructions for the project</summary>
         <p>
-          You learned all this last year. You just need to remember how!<br />
-          You can Google it, ask a friend, copy from last year's work, even look at
-          <a
-            href="https://sites.google.com/hvhs.school.nz/technology/COMP/12COMP/12-databases/br-firebase-skills"
-            >last year's notes</a
-          >, works for you.<br />
-          By the end of the week you will have Firebase going.
+          Your tasks:
+          <h2>JavaScript</h2>
+          <ul>
+            <li>
+              Connect the JavaScript file - this page will tell you when it is
+              done ✅
+            </li>
+            <li>
+              Add a button - Make it change the heading "You pressed the
+              button!" ✅
+            </li>
+            <li>Add a text input</li>
+            <li>The button puts the text in the heading</li>
+            <li>
+              Get rid of the alert - the button updates the heading of this page
+              ✅
+            </li>
+          </ul>
+          <h4>Firebase basics</h4>
+
+          <ul>
+            <li>Create a new Firebase or re-use yours from last year ✅</li>
+            <li>Remember how to connect up the 'authorised domains'</li>
+            <li>Add a button - Make it save the text to Firebase ✅</li>
+            <li>
+              Add another button - Make it read the message from Firebase and
+              write it to the heading of this page ✅
+            </li>
+          </ul>
+          <h4>Firebase logins</h4>
+          <ul>
+            <li>Use Google Authentication</li>
+            <li>
+              Change what the first button does. Now it saves the text and the
+              user who entered it ✅
+            </li>
+            <li>
+              Change what the second button does. Now it displays all the
+              messages and who added them ✅
+            </li>
+          </ul>
+          <h4>Extension</h4>
+          <ul>
+            <li>
+              Firebase now stores a list of messages saved by each user ✅
+            </li>
+            <li>There is a button that only displays your messages ✅</li>
+            <li>
+              You can filter to only display messages from a specific user ✅
+            </li>
+          </ul>
+          <p>
+            You learned all this last year. You just need to remember how!<br />
+            You can Google it, ask a friend, copy from last year's work, even look
+            at
+            <a
+              href="https://sites.google.com/hvhs.school.nz/technology/COMP/12COMP/12-databases/br-firebase-skills"
+              >last year's notes</a
+            >, works for you.<br />
+            By the end of the week you will have Firebase going.
+          </p>
         </p>
-      </p>
-    </details>
+      </details>
+    </div>
   </body>
 </html>
 
 <style>
-  .changeList {
-    background: green;
-    width: 25%;
+  :root {
+    --primary-background-color: #ffffe7;
+    --primary-content-color: #eee7ca;
+    --primary-border-color: #fffcbb;
+    --primary-text-color: #9ca288;
+    --message-color: #9ca288;
   }
 
-  .changeList li {
-    background-color: red;
-    margin-top: 2px;
+  body {
+    background-color: var(--primary-background-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* color: var(--primary-text-color); */
+  }
+
+  #content {
+    margin-top: 5ch;
+    width: 60ch;
+    padding: 2ch;
+  }
+
+  .loginSection,
+  .messageSection {
+    background-color: var(--primary-content-color);
+    outline: 5px dashed var(--primary-border-color);
+  }
+
+  #changeList {
+    height: 60vh;
+    overflow-y: scroll;
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  #changeList li {
+    margin-top: 6px;
+    width: 80%;
+
+    background-color: var(--message-color);
+
+    margin-left: 1ch;
+    margin-right: 1ch;
+
+    display: grid;
+    grid-template-areas:
+      "author time"
+      "content content";
+  }
+
+  #changeList li.personalMessage {
+    align-self: flex-end;
+    border-radius: 10px 10px 0px 10px;
+  }
+
+  #changeList li:not(.personalMessage) {
+    align-self: flex-start;
+    border-radius: 10px 10px 10px 0px;
+  }
+
+  #headingForm {
+    display: flex;
+  }
+
+  #headingForm input {
+    width: 100%;
   }
 
   details {
-    border: 1px solid #ccc;
+    border: 1px solid #969696;
     padding: 0.5rem;
     border-radius: 6px;
   }
@@ -141,5 +216,17 @@ import UserBox from "../components/UserBox.astro";
 
   details[open] summary {
     margin-bottom: 0.5rem;
+  }
+</style>
+
+<style is:global>
+  #changeList li > p:nth-child(1) {
+    grid-area: content;
+  }
+  #changeList li > p:nth-child(2) {
+    grid-area: time;
+  }
+  #changeList li > p:nth-child(3) {
+    grid-area: author;
   }
 </style>

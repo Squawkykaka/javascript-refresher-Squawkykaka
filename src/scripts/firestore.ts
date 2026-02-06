@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, getAuth, setPersistence, signInAnonymously, type Auth, type User } from "firebase/auth";
 import { addDoc, collection, doc, getFirestore, increment, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { showError } from "./helper";
-import { messageConverter, userConverter } from "./models";
+import { messageConverter, userConverter, type MessageType } from "./models";
 
 const firebaseConfig = {
 
@@ -51,14 +51,15 @@ export function getUser(): User {
     }
 }
 
-export async function sendMessage(message: string) {
+export async function sendMessage(message: string, messageType: MessageType = "text") {
     let user = getUser();
 
     addDoc(messagesCol, {
         text: message,
         createdAt: serverTimestamp(),
         userRef: doc(db, "users", user.uid),
-        userName: user.displayName || "Anonymous"
+        userName: user.displayName || "Anonymous",
+        type: messageType,
     });
 
     updateDoc(doc(usersCol, user.uid), {

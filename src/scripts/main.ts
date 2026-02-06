@@ -8,15 +8,17 @@ import { formatTime, getRequiredField, makeP, onFormSubmit } from "./helper";
 })();
 
 onFormSubmit("headingForm", (data) => {
-    const message = String(data.get("message"))
+    const message = String(data.get("message"));
     sendMessage(message);
-})
+});
 
 // when a change to the database is detected, pulls it and applies it to the header and update list.
 onSnapshot(
     query(messagesCol, orderBy("createdAt", "desc"), limit(5)),
     (snapshot) => {
         if (snapshot.empty) return;
+
+        const user = getUser();
 
         snapshot.docs.forEach((docSnap, index) => {
             const data = docSnap.data();
@@ -28,8 +30,18 @@ onSnapshot(
                 makeP(data.text),
                 makeP(formatTime(data.createdAt)),
                 makeP(data.userName)
-            )
-        })
+            );
+
+            console.log(data.userRef.id, "Local User", user.uid);
+
+
+            if (data.userRef.id == user.uid) {
+                container.classList.add("personalMessage");
+
+            } else {
+                container.classList.remove("personalMessage");
+            }
+        });
     }
 );
 
@@ -73,7 +85,7 @@ onFormSubmit("loginForm", async (data) => {
         document.querySelector("#loginForm > p")!.innerHTML = error.message;
     }
 
-})
+});
 
 // This enables the message send button
 onAuthStateChanged(auth, async (user) => {

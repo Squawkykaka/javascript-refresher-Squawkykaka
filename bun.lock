@@ -7,6 +7,7 @@
       "dependencies": {
         "astro": "^5.17.1",
         "firebase": "^12.8.0",
+        "sharp": "^0.34.5",
       },
     },
   },

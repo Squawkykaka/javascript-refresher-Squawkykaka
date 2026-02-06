@@ -1,8 +1,11 @@
 import { DocumentReference, Timestamp, type DocumentData, type FirestoreDataConverter, type QueryDocumentSnapshot, type SnapshotOptions } from "firebase/firestore"
 
+export type MessageType = "text" | "embed" | "picture";
+
 export type Message = {
     text: string,
     createdAt: Timestamp,
+    type: MessageType,
     userName: string
     userRef: DocumentReference<DocumentData, DocumentData>
 }

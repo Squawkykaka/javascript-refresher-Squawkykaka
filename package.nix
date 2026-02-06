@@ -1,4 +1,9 @@
-{lib, nodejs,bun, stdenv }:
+{
+  lib,
+  nodejs,
+  bun,
+  stdenv,
+}:
 stdenv.mkDerivation (finalAttrs: {
   pname = "javascript-refresher-Squawkykaka";
   version = "latest";
@@ -65,11 +70,11 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   buildPhase = ''
-      bun run build
-    '';
+    bun run build
+  '';
 
   installPhase = ''
-      mkdir -p $out
-      cp -r dist/* $out
-    '';
+    mkdir -p $out
+    cp -r dist/* $out
+  '';
 })
