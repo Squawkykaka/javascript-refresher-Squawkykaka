@@ -7,3 +7,7 @@ function sendEmbed(link:string) {
 function sendPicture(link:string) {
     sendMessage(link, "picture")
 }
+
+function renderPicture(link:string) {
+    
+}

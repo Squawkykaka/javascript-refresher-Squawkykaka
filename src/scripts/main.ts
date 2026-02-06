@@ -18,30 +18,41 @@ onSnapshot(
     (snapshot) => {
         if (snapshot.empty) return;
 
+        let container = document.querySelector("#changeList") as Element;
+        if (!container) return;
         const user = getUser();
 
-        snapshot.docs.forEach((docSnap, index) => {
-            const data = docSnap.data();
-            let container = document.querySelector(`#changeList > #item${index + 1}`) as Element;
+        snapshot.docChanges().forEach(docSnap => {
+            const data = docSnap.doc.data();
+            const messageId = docSnap.doc.id;
 
-            if (!container) return;
+            const existing = container.querySelector(
+                `li[data-message-id="${messageId}"]`
+            );
 
-            container.replaceChildren(
+            let newChild = document.createElement("li");
+            newChild.dataset.messageId = messageId;
+
+            newChild.replaceChildren(
                 makeP(data.text),
                 makeP(formatTime(data.createdAt)),
                 makeP(data.userName)
             );
 
-            console.log(data.userRef.id, "Local User", user.uid);
-
 
             if (data.userRef.id == user.uid) {
-                container.classList.add("personalMessage");
+                newChild.classList.add("personalMessage");
+            }
 
+            // add the message id, so we dont duplicate messges twice
+            if (existing) {
+                existing.replaceWith(newChild);
             } else {
-                container.classList.remove("personalMessage");
+                container.appendChild(newChild);
             }
         });
+
+        container.scrollTop = container.scrollHeight;
     }
 );
 
