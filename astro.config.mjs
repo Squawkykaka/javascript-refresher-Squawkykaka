@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 
 import sharp from "sharp";
 
@@ -16,5 +16,22 @@ export default defineConfig({
     esbuild: {
       legalComments: "external",
     },
+  },
+
+  experimental: {
+    fonts: [
+      {
+        provider: fontProviders.local(),
+        name: "Cute",
+        cssVariable: "--font-cute",
+        options: {
+          variants: [
+            {
+              src: ["./src/assets/TsunagiGothic-subset.woff2"],
+            },
+          ],
+        },
+      },
+    ],
   },
 });

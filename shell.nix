@@ -1,8 +1,13 @@
 { pkgs ? import <nixpkgs> {} }:
 
+let
+  packages = import ./default.nix { inherit pkgs; };
+in
+
 pkgs.mkShell {
-  packages = with pkgs; [
-    bun
+  packages = [
+    pkgs.bun
+    packages.fontcull
   ];
 
   buildInputs = [

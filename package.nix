@@ -40,7 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     outputHash =
       {
-        x86_64-linux = "sha256-2LMFXemSw4RihbCSJZSqbERcDtYrqtf+Au3bxDbWSZQ=";
+        x86_64-linux = "sha256-JP5ZchIbIeyvnEpiY+YxdZ5to40nye4CweR8+1zi8Ec=";
         aarch64-linux = "sha256-tZYIiWHaeryV/f9AFNknRZp8om0y8QH8RCxoqgmbR5g=";
       }
       .${stdenv.hostPlatform.system}

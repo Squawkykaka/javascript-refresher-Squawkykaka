@@ -2,8 +2,9 @@
 import { Image } from "astro:assets";
 import UserBox from "../components/UserBox.astro";
 
-import send from "../images/send.svg";
-import chaosInc from "../images/Chaos_Technologies_banner.png";
+import send from "../assets/send.svg";
+import chaosInc from "../assets/Chaos_Technologies_banner.png";
+import Font from "astro/components/Font.astro";
 ---
 
 <html lang="en">
@@ -15,6 +16,7 @@ import chaosInc from "../images/Chaos_Technologies_banner.png";
     <meta name="generator" content={Astro.generator} />
     <script src="../scripts/main.ts"></script>
     <title>Astro</title>
+    <Font cssVariable="--font-cute" preload />
   </head>
   <body>
     <div id="content">
@@ -46,13 +48,7 @@ import chaosInc from "../images/Chaos_Technologies_banner.png";
       </div>
 
       <div class="messageSection">
-        <ul id="changeList">
-          <!-- <li id="item5"></li>
-          <li id="item4"></li>
-          <li id="item3"></li>
-          <li id="item2"></li>
-          <li id="item1"></li> -->
-        </ul>
+        <ul id="changeList"></ul>
 
         <div class="chat-banner">
           <Image
@@ -143,13 +139,13 @@ import chaosInc from "../images/Chaos_Technologies_banner.png";
 </html>
 
 <style>
-  @font-face {
+  /* @font-face {
     font-family: cute;
     src: url("/TsunagiGothic.ttf");
-  }
+  } */
 
   .titleBar {
-    font-family: cute;
+    font-family: var(--font-cute);
     font-size: 60px;
     /* line-height: 0.5; */
     /* margin-top: -10px; */
