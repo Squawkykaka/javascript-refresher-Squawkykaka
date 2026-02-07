@@ -1,0 +1,28 @@
+---
+import { Image } from "astro:assets";
+
+import simonImage from "../assets/simon.webp";
+---
+
+<div class="container">
+  <img
+    src={simonImage.src}
+    alt="a picture of simon"
+    width={150}
+    height={150}
+    fetchpriority="high"
+    loading="eager"
+  />
+</div>
+
+<style>
+  .container {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+  }
+
+  img {
+    image-rendering: pixelated;
+  }
+</style>
