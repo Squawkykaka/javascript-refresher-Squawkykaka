@@ -7,7 +7,7 @@ in
 pkgs.mkShell {
   packages = [
     pkgs.bun
-    packages.fontcull
+    # packages.fontcull
   ];
 
   buildInputs = [

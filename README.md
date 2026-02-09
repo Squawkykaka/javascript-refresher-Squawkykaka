@@ -11,6 +11,10 @@
 - theme the buttons take inspo from the rice website faq
 - make it cute with pixel art cats cause cats
 
+# ERRORS
+- messages come in backwards after page reload
+- permission error when page first loads
+
 # font optimisation
 
 when modifiying the page / using more charachters of the cute font, remember to rerun fontconfig
