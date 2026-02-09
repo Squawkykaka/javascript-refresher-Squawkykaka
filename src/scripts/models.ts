@@ -12,10 +12,8 @@ export type Message = {
 
 export type UserProfile = {
     displayName: string | null;
-    email: string | null;
     messagesSent: number;
 }
-
 // **************
 // Firestore converters, automatically converts to nice typescript types
 // so i dont have to hope that i type right.
@@ -49,7 +47,7 @@ export const userConverter: FirestoreDataConverter<UserProfile> = {
 
         return {
             displayName: data.displayName ?? null,
-            email: data.email ?? null,
+            // email: data.email ?? null,
             messagesSent: data.messagesSent ?? 0,
         };
     }

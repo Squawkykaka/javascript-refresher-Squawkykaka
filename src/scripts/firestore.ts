@@ -63,14 +63,15 @@ export async function sendMessage(message: string, messageType: MessageType = "t
     });
 
     try {
-    updateDoc(doc(usersCol, user.uid), {
-        // filtering by messages sent seems like a relatively decent sorting mechanism for default
-        messagesSent: increment(1),
-    });
+        updateDoc(doc(usersCol, user.uid), {
+            // filtering by messages sent seems like a relatively decent sorting mechanism for default
+            messagesSent: increment(1),
+        });
     } catch (error) {
-    setDoc(doc(usersCol, user.uid), {
-        messagesSent: 0,
-    });
+        setDoc(doc(usersCol, user.uid), {
+            messagesSent: 0,
+            displayName: "Anonymous"
+        });
     }
 }
 

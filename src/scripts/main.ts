@@ -72,7 +72,6 @@ onFormSubmit("signupForm", async (data) => {
         user = (await linkWithCredential(user, credential)).user;
         setDoc(doc(usersCol, user.uid), {
             displayName: user.displayName,
-            email: user.email,
             messagesSent: 0,
         });
     } catch (error) {
